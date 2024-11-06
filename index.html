@@ -1,213 +1,342 @@
 <html>
     <head>
     <base href="https://github.com/">
-    <title>Gestion de Compte Personnel</title>
+    <title>إدارة الحساب الشخصي</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap" rel="stylesheet">
-<style>
-body{
-direction: rtl;
-font-family: "Noto Kufi Arabic", serif;
-
+    <style>
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 200px;
         }
-.toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    min-width: 200px;
-}
-.negative {
-    color: red;
-}
-.positive {
-    color: green;
-}
-</style>
-</head>
-<body>
-
-<div class="container mt-6">
-    
-<h4 class="text-center mb-6">آواني حسن</h4>
-    
-    <!-- Affichage du solde -->
-    <div class="card mb-6">
-        <div class="card-body text-center">
-            <h5>الرصيد الحالي</h5>
-            <h5 id="solde" class="mb-0">0.00 درهم</h5>
-        </div>
-    </div>
-
-    <!-- Formulaire d'ajout de transaction -->
-    <div class="card mb-6">
-        <div class="card-body">
-            <h4>معاملة جديدة</h4>
-            <form id="transactionForm">
-                <div class="mb-3">
-                    <label class="form-label">وصف</label>
-                    <input type="text" class="form-control" id="description" required>
+        .negative {
+            color: red;
+        }
+        .positive {
+            color: green;
+        }
+        body {
+            direction: rtl;
+            text-align: right;
+            font-family: "Noto Kufi Arabic", serif;
+        }
+        </style>
+        </head><body>
+        
+        <div class="container mt-4">
+            <h1 class="text-center mb-4">إدارة الحساب الشخصي</h1>
+            <p class="text-center mb-4" >آواني حسن</p>
+            
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h3>الرصيد الحالي</h3>
+                    <h2 id="solde" class="mb-0">0.00 درهم</h2>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">تاريخ المعاملة</label>
-                    <input type="datetime-local" class="form-control" id="dateTransaction" required>
+            </div>
+        
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4>معاملة جديدة</h4>
+                    <form id="transactionForm">
+                        <div class="mb-3">
+                            <label class="form-label">المشتريات</label>
+                            <div class="input-group">
+                                <select class="form-select" id="description" required>
+                                    <option value="">اختر البضاعة</option>
+                                    <option value="عطاء">غطاء</option>
+                                    
+                                </select>
+                                <button type="button" class="btn btn-outline-primary" onclick="transactionManager.showAddDescriptionModal()">
+إضافة بضاعة جديد                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">تاريخ المعاملة</label>
+                            <input type="datetime-local" class="form-control" id="dateTransaction" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">المبلغ</label>
+                            <input type="number" step="0.01" class="form-control" id="montant" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">النوع</label>
+                            <select class="form-select" id="type" required>
+                                <option value="credit">أداء</option>
+                                <option value="debit">شراء</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">إضافة</button>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">المبلغ</label>
-                    <input type="number" step="0.01" class="form-control" id="montant" required>
+            </div>
+        
+            <div class="card">
+                <div class="card-body">
+                    <h4>سجل المعاملات</h4>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>الوصف</th>
+                                    <th>المبلغ</th>
+                                    <th>النوع</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsList">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">نوع</label>
-                    <select class="form-select" id="type" required>
-                        <option value="credit">أداء</option>
-                        <option value="debit">مديونية</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">إضافة</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Liste des transactions -->
-    <div class="card">
-        <div class="card-body">
-            <h4>سجل المعاملات</h4>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>تاريخ</th>
-                            <th>وصف معاملة</th>
-                            <th>المبلغ</th>
-                            <th>النوع</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsList">
-                    </tbody>
-                </table>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Toast pour les notifications -->
-<div class="toast-container">
-    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">إشعار</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body" id="toastMessage"></div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-// Classe pour gérer les transactions
-class TransactionManager {
-    constructor() {
-        this.transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-        this.updateUI();
-    }
-
-    addTransaction(description, date, montant, type) {
-        const transaction = {
-            id: Date.now(),
-            date: date,
-            description,
-            montant: parseFloat(montant),
-            type
-        };
-        this.transactions.push(transaction);
-        this.saveToLocalStorage();
-        this.updateUI();
-        this.showToast('تمت إضافة المعاملة بنجاح!');
-    }
-
-    deleteTransaction(id) {
-        this.transactions = this.transactions.filter(t => t.id !== id);
-        this.saveToLocalStorage();
-        this.updateUI();
-        this.showToast('تم حذف المعاملة!');
-    }
-
-    calculateBalance() {
-        return this.transactions.reduce((acc, curr) => {
-            return curr.type === 'credit' 
-                ? acc + curr.montant 
-                : acc - curr.montant;
-        }, 0);
-    }
-
-    saveToLocalStorage() {
-        localStorage.setItem('transactions', JSON.stringify(this.transactions));
-    }
-
-    showToast(message) {
-        const toastEl = document.getElementById('toast');
-        const toast = new bootstrap.Toast(toastEl);
-        document.getElementById('toastMessage').textContent = message;
-        toast.show();
-    }
-
-    formatDate(dateStr) {
-        const date = new Date(dateStr);
-        return date.toLocaleString();
-    }
-
-    updateUI() {
-        // Mise à jour du solde
-        const solde = this.calculateBalance();
-        document.getElementById('solde').textContent = `${solde.toFixed(2)} درهم`;
-        document.getElementById('solde').className = solde >= 0 ? 'positive' : 'negative';
-
-        // Mise à jour de la liste des transactions
-        const transactionsList = document.getElementById('transactionsList');
-        transactionsList.innerHTML = '';
         
-        this.transactions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(transaction => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${this.formatDate(transaction.date)}</td>
-                <td>${transaction.description}</td>
-                <td class="${transaction.type === 'credit' ? 'positive' : 'negative'}">
-                    ${transaction.type === 'credit' ? '+' : '-'}${transaction.montant.toFixed(2)} درهم
-                </td>
-                <td>${transaction.type === 'credit' ? 'Crédit' : 'Débit'}</td>
-                <td>
-                    <button class="btn btn-danger btn-sm" onclick="transactionManager.deleteTransaction(${transaction.id})">
-                        حذف
-                    </button>
-                </td>
-            `;
-            transactionsList.appendChild(row);
+        <div class="toast-container">
+            <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">إشعار</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" id="toastMessage"></div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="editModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">تعديل المعاملة</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editForm">
+                            <input type="hidden" id="editId">
+                            <div class="mb-3">
+                                <label class="form-label">الوصف</label>
+                                <select class="form-select" id="editDescription" required>
+                                    <option value="">اختر الوصف</option>
+                                    <option value="راتب">راتب</option>
+                                    <option value="فاتورة">فاتورة</option>
+                                    <option value="مشتريات">مشتريات</option>
+                                    <option value="تحويل">تحويل</option>
+                                    <option value="إيجار">إيجار</option>
+                                    <option value="أخرى">أخرى</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">تاريخ المعاملة</label>
+                                <input type="datetime-local" class="form-control" id="editDate" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">المبلغ</label>
+                                <input type="number" step="0.01" class="form-control" id="editMontant" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">النوع</label>
+                                <select class="form-select" id="editType" required>
+                                    <option value="credit">آداء</option>
+                                    <option value="debit">شراء</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="button" class="btn btn-primary" onclick="transactionManager.saveEdit()">حفظ التغييرات</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="addDescriptionModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">إضافة وصف جديد</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addDescriptionForm">
+                            <div class="mb-3">
+                                <label class="form-label">الوصف الجديد</label>
+                                <input type="text" class="form-control" id="newDescription" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="button" class="btn btn-primary" onclick="transactionManager.addNewDescription()">إضافة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+        class TransactionManager {
+            constructor() {
+                this.transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+                this.customDescriptions = JSON.parse(localStorage.getItem('customDescriptions')) || [];
+                this.updateUI();
+                this.editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                this.descriptionModal = new bootstrap.Modal(document.getElementById('addDescriptionModal'));
+                this.updateDescriptionDropdowns();
+            }
+        
+            showAddDescriptionModal() {
+                this.descriptionModal.show();
+            }
+        
+            addNewDescription() {
+                const newDesc = document.getElementById('newDescription').value.trim();
+                if (newDesc && !this.customDescriptions.includes(newDesc)) {
+                    this.customDescriptions.push(newDesc);
+                    localStorage.setItem('customDescriptions', JSON.stringify(this.customDescriptions));
+                    this.updateDescriptionDropdowns();
+                    this.descriptionModal.hide();
+                    this.showToast('تمت إضافة الوصف الجديد بنجاح!');
+                    document.getElementById('newDescription').value = '';
+                }
+            }
+        
+            updateDescriptionDropdowns() {
+                const dropdowns = ['description', 'editDescription'];
+                dropdowns.forEach(dropdownId => {
+                    const select = document.getElementById(dropdownId);
+                    const defaultOptions = Array.from(select.options).slice(0, 7);
+                    select.innerHTML = '';
+                    defaultOptions.forEach(option => select.add(option));
+                    this.customDescriptions.forEach(desc => {
+                        const option = new Option(desc, desc);
+                        select.add(option);
+                    });
+                });
+            }
+        
+            addTransaction(description, date, montant, type) {
+                const transaction = {
+                    id: Date.now(),
+                    date: date,
+                    description,
+                    montant: parseFloat(montant),
+                    type
+                };
+                this.transactions.push(transaction);
+                this.saveToLocalStorage();
+                this.updateUI();
+                this.showToast('تمت إضافة المعاملة بنجاح!');
+            }
+        
+            editTransaction(id) {
+                const transaction = this.transactions.find(t => t.id === id);
+                document.getElementById('editId').value = transaction.id;
+                document.getElementById('editDescription').value = transaction.description;
+                document.getElementById('editDate').value = transaction.date;
+                document.getElementById('editMontant').value = transaction.montant;
+                document.getElementById('editType').value = transaction.type;
+                this.editModal.show();
+            }
+        
+            saveEdit() {
+                const id = parseInt(document.getElementById('editId').value);
+                const index = this.transactions.findIndex(t => t.id === id);
+                
+                this.transactions[index] = {
+                    id: id,
+                    description: document.getElementById('editDescription').value,
+                    date: document.getElementById('editDate').value,
+                    montant: parseFloat(document.getElementById('editMontant').value),
+                    type: document.getElementById('editType').value
+                };
+        
+                this.saveToLocalStorage();
+                this.updateUI();
+                this.editModal.hide();
+                this.showToast('تم تحديث المعاملة بنجاح!');
+            }
+        
+            deleteTransaction(id) {
+                this.transactions = this.transactions.filter(t => t.id !== id);
+                this.saveToLocalStorage();
+                this.updateUI();
+                this.showToast('تم حذف المعاملة!');
+            }
+        
+            calculateBalance() {
+                return this.transactions.reduce((acc, curr) => {
+                    return curr.type === 'credit' 
+                        ? acc + curr.montant 
+                        : acc - curr.montant;
+                }, 0);
+            }
+        
+            saveToLocalStorage() {
+                localStorage.setItem('transactions', JSON.stringify(this.transactions));
+            }
+        
+            showToast(message) {
+                const toastEl = document.getElementById('toast');
+                const toast = new bootstrap.Toast(toastEl);
+                document.getElementById('toastMessage').textContent = message;
+                toast.show();
+            }
+        
+            formatDate(dateStr) {
+                const date = new Date(dateStr);
+                return date.toLocaleString('ar-MA');
+            }
+        
+            updateUI() {
+                const solde = this.calculateBalance();
+                document.getElementById('solde').textContent = `${solde.toFixed(2)} درهم`;
+                document.getElementById('solde').className = solde >= 0 ? 'positive' : 'negative';
+        
+                const transactionsList = document.getElementById('transactionsList');
+                transactionsList.innerHTML = '';
+                
+                this.transactions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(transaction => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${this.formatDate(transaction.date)}</td>
+                        <td>${transaction.description}</td>
+                        <td class="${transaction.type === 'credit' ? 'positive' : 'negative'}">
+                            ${transaction.type === 'credit' ? '+' : '-'}${transaction.montant.toFixed(2)} درهم
+                        </td>
+                        <td>${transaction.type === 'credit' ? 'آداء' : 'شراء'}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="transactionManager.editTransaction(${transaction.id})">
+                                تعديل
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="transactionManager.deleteTransaction(${transaction.id})">
+                                حذف
+                            </button>
+                        </td>
+                    `;
+                    transactionsList.appendChild(row);
+                });
+            }
+        }
+        
+        const transactionManager = new TransactionManager();
+        
+        document.getElementById('dateTransaction').value = new Date().toISOString().slice(0, 16);
+        
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const description = document.getElementById('description').value;
+            const date = document.getElementById('dateTransaction').value;
+            const montant = document.getElementById('montant').value;
+            const type = document.getElementById('type').value;
+            
+            transactionManager.addTransaction(description, date, montant, type);
+            
+            this.reset();
+            document.getElementById('dateTransaction').value = new Date().toISOString().slice(0, 16);
         });
-    }
-}
-
-// Initialisation
-const transactionManager = new TransactionManager();
-
-// Définir la date et l'heure actuelles par défaut
-document.getElementById('dateTransaction').value = new Date().toISOString().slice(0, 16);
-
-// Gestion du formulaire
-document.getElementById('transactionForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const description = document.getElementById('description').value;
-    const date = document.getElementById('dateTransaction').value;
-    const montant = document.getElementById('montant').value;
-    const type = document.getElementById('type').value;
-    
-    transactionManager.addTransaction(description, date, montant, type);
-    
-    // Reset form
-    this.reset();
-    // Réinitialiser la date par défaut
-    document.getElementById('dateTransaction').value = new Date().toISOString().slice(0, 16);
-});
-</script>
-</body>
-</html>
+        </script>
+        </body></html>
